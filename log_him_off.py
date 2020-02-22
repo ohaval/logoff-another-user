@@ -23,21 +23,21 @@ def log_off(username = USER):
 
 def is_admin():
 	"""Tries to run the program with admin permissions. Should pop a UAC windows in most PC's preferences."""
-    try:
-        return ctypes.windll.shell32.IsUserAnAdmin()
-    except:
-        return False
+	try:
+		return ctypes.windll.shell32.IsUserAnAdmin()
+	except Exception as e:
+		return False
 
 
 def main():
 	if is_admin():
 		if not USER:
 			USER = input("Enter username ->")
-	    log_off(USER)
+		log_off(USER)
 
 	else:
-	    # Re-run the program with admin rights
-	    ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
+		# Re-run the program with admin rights
+		ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
 
 
 if __name__ == "__main__":
