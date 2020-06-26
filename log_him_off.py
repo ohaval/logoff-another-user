@@ -4,41 +4,43 @@ import os
 import ctypes
 import sys
 
-# Enter here the name of the user you want to log off. (Lower)
-USER = ""
+# The name of the user to log off
+USER = ''
 
 
-def log_off(username = USER):
-	"""Logging off the user by the name of the USER variable."""
-	output = str(subprocess.check_output(r"C:\Windows\Sysnative\quser.exe")).split("\\r\\n")
+def log_off(user):
+    output = subprocess.check_output(r"C:\Windows\System32\quser.exe").decode()
 
-	for line in output:
-		if username in line.lower():
-			user_line = line
+    user_line = ''
+    for line in output.split('\r\n'):
+        if user in line.lower():
+            user_line = line
+            break
 
-	userid = re.findall(r"\d", user_line)[0]
+    if not user_line:
+        input('User wasn\'t found')
+        return None
 
-	os.system(f"C:\\Windows\\Sysnative\\logoff.exe {userid}")
+    userid = re.findall(r'\d', user_line)[0]
+    command = f"C:\\Windows\\System32\\logoff.exe {userid}"
+    return_code = os.system(command)
+    print(return_code)
 
 
 def is_admin():
-	"""Tries to run the program with admin permissions. Should pop a UAC windows in most PC's preferences."""
-	try:
-		return ctypes.windll.shell32.IsUserAnAdmin()
-	except Exception as e:
-		return False
+    return ctypes.windll.shell32.IsUserAnAdmin()
 
 
 def main():
-	if is_admin():
-		if not USER:
-			USER = input("Enter username ->")
-		log_off(USER)
+    if is_admin():
+        print('[V] Admin Privileges')
+        log_off(USER)
 
-	else:
-		# Re-run the program with admin rights
-		ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
+    else:
+        # Re-run the program with admin rights
+        print('[X] Admin Privileges')
+        ctypes.windll.shell32.ShellExecuteW(None, 'runas', sys.executable, __file__, None, 1)
 
 
-if __name__ == "__main__":
-	main()
+if __name__ == '__main__':
+    main()
